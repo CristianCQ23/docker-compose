@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: db
+    restart: unless-stopped
+    networks:
+      - app-net
+    volumes:
+      - gpdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: secret
+
+  web:
+    image: nginx:latest
+    container_name: web
+    restart: unless-stopped
+    networks:
+      - app-net
+    ports:
+      - "5000:80"
+
+  api:
+    image: node:22-alpine
+    container_name: api
+    restart: unless-stopped
+    networks:
+      - app-net
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: db
+    command: tail -f /dev/null
+
+networks:
+  app-net:
+    external: true
+
+volumes:
+  gpdata:
+    external: true
